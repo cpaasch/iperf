@@ -121,6 +121,7 @@ const struct option long_options[] =
 {"ipv6_domain",      no_argument, NULL, 'V'},
 {"suggest_win_size", no_argument, NULL, 'W'},
 {"linux-congestion", required_argument, NULL, 'Z'},
+{"lsrr", required_argument, NULL, 'A'},
 {0, 0, 0, 0}
 };
 
@@ -164,12 +165,13 @@ const struct option env_options[] =
 {"IPERF_IPV6_DOMAIN",      no_argument, NULL, 'V'},
 {"IPERF_SUGGEST_WIN_SIZE", required_argument, NULL, 'W'},
 {"IPERF_CONGESTION_CONTROL",  required_argument, NULL, 'Z'},
+{"IPERF_LOOSE_SOURCE_ROUTING",  required_argument, NULL, 'A'},
 {0, 0, 0, 0}
 };
 
 #define SHORT_OPTIONS()
 
-const char short_options[] = "1b:c:df:hi:l:mn:o:p:rst:uvw:x:y:B:CDF:IL:M:NP:RS:T:UVWZ:";
+const char short_options[] = "1b:c:df:hi:l:mn:o:p:rst:uvw:x:y:B:CDF:IL:M:NP:RS:T:UVWZA:";
 
 /* -------------------------------------------------------------------
  * defaults
@@ -670,6 +672,12 @@ void Settings_Interpret( char option, const char *optarg, thread_Settings *mExtS
 #else
             fprintf( stderr, "The -Z option is not available on this operating system\n");
 #endif
+	    break;
+
+        case 'A':
+	    setLsrr( mExtSettings );
+	    mExtSettings->mLsrr = new char[strlen(optarg)+1];
+	    strcpy( mExtSettings->mLsrr, optarg);
 	    break;
 
         default: // ignore unknown

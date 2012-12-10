@@ -142,6 +142,7 @@ SPECIAL_OSF1_EXTERN_C_START
     #include <netdb.h>
 SPECIAL_OSF1_EXTERN_C_STOP
     #include <netinet/in.h>
+    #include <netinet/ip.h>
     #include <netinet/tcp.h>
 
 SPECIAL_OSF1_EXTERN_C_START

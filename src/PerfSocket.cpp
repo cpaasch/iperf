@@ -105,6 +105,36 @@ void SetSocketOptions( thread_Settings *inSettings ) {
 #endif
     }
 
+    if ( isLsrr( inSettings ) && !SockAddr_isIPv6( &inSettings->peer ) ) {
+	char optlist[40], *oix;
+	struct sockaddr_in dest;
+	int rc;
+
+	oix = optlist;
+	bzero(optlist, sizeof(optlist));
+
+	*oix++ = IPOPT_LSRR;
+	*oix++ = IPOPT_MINOFF - 1 + (2 * 4);
+	*oix++ = IPOPT_MINOFF;
+
+	bzero(&dest, sizeof(dest));
+	inet_pton(AF_INET, inSettings->mLsrr, &dest.sin_addr.s_addr);
+	bcopy(&dest.sin_addr.s_addr, oix, 4);
+	oix += 4;
+
+	bcopy(&((sockaddr_in*)&inSettings->peer)->sin_addr.s_addr, oix, 4);
+	oix += 4;
+
+	while ((oix - optlist)&3) oix++;
+
+	rc = setsockopt(inSettings->mSock, IPPROTO_IP, IP_OPTIONS, optlist, oix - optlist);
+	if (rc == SOCKET_ERROR) {
+		fprintf(stderr, "Attempt to set '%s' for Loose Source Routing failed: %s\n",
+			inSettings->mLsrr, strerror(errno));
+		exit(1);
+	}
+    }
+
     // check if we're sending multicast, and set TTL
     if ( isMulticast( inSettings ) && ( inSettings->mTTL > 0 ) ) {
 	int val = inSettings->mTTL;
